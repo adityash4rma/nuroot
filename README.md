@@ -1,2 +1,2 @@
 # reroot
-Run Sudo apps on Unprivileged &amp; Ephemeral Linux Environments
+Run apps that require sudo privilege, on Unprivileged &amp; Ephemeral Linux Environments
