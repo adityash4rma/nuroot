@@ -27,7 +27,6 @@ RST='\e[0m'
 
 
 
-
 ## ///// Function to start installation /////
 function distro_install() {
 
@@ -67,7 +66,7 @@ function distro_install() {
         ARCH_ALT=arm64
         printf "Architecture: ${BG} ${ARCH_ALT} ${RST}\n"
     else
-      printf "${BR}Unsupported CPU architecture: ${ARCH}${RST}"
+      printf "${BR}! Unsupported CPU architecture: ${ARCH}${RST}"
       exit 1
     fi
     
@@ -82,53 +81,73 @@ function distro_install() {
     
     case $which_distro in
         1) 
-            printf "${BY}! Downloading Ubuntu (24.04.2) ...${RST}";
-            wget --show-progress --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O /tmp/ubuntu-rootfs.tar.gz "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04.1/release/ubuntu-base-24.04.2-base-${ARCH_ALT}.tar.gz"
-            printf "${BY}! Unpacking Distro ...${RST}"
-            tar -xf /tmp/ubuntu-rootfs.tar.gz -C $ROOTFS_DIR
+            distro="ubuntu"
+            printf "${Y}! Downloading Ubuntu (24.04.2) ...${RST}";
+            wget --show-progress --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04.1/release/ubuntu-base-24.04.2-base-${ARCH_ALT}.tar.gz"
+            printf "${G}✓ Downloading Completed${RST}"
+            printf "${Y}! Unpacking Distro ...${RST}"
+            tar -xf "/tmp/${distro}-rootfs.tar.gz" -C $ROOTFS_DIR
+            printf "${BG}✓ Unpacking Completed${RST}"
             ;;
         2)
-            printf "${BY}! Downloading Alpine Linux...${RST}";
-            wget --show-progress  --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O /tmp/rootfs.tar.gz "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
-            printf "${BY}! Unpacking Distro ...${RST}"
-            tar -xf /tmp/alpine-rootfs.tar.gz -C $ROOTFS_DIR
+            distro="alpine"
+            printf "${Y}! Downloading Alpine Linux...${RST}";
+            wget --show-progress  --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
+            printf "${G}✓ Downloading Completed${RST}"
+            printf "${Y}! Unpacking Distro ...${RST}"
+            tar -xf "/tmp/${distro}-rootfs.tar.gz" -C $ROOTFS_DIR
+            printf "${G}✓ Unpacking Completed${RST}"
             ;;
     esac
-
+    
     ## Binary installation
     mkdir $ROOTFS_DIR/usr/local/bin -p
+    printf "${Y}! Downloading Binary: ${RST}proot ...${RST}";
     wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
 
     ## Downlaod proot binary and check integrity
     while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
         rm $ROOTFS_DIR/usr/local/bin/proot -rf
+        printf "${Y}! [RETRY] Downloading Binary: ${RST}proot ...${RST}";
         wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
 
         if [ -s "$ROOTFS_DIR/usr/local/bin/proot" ]; then
-          chmod 755 $ROOTFS_DIR/usr/local/bin/proot
-          break
+            printf "${Y}! Escalating Privileges for${RST} proot ${Y}...${RST}"
+            chmod 755 $ROOTFS_DIR/usr/local/bin/proot
+            break
         fi
 
         chmod 755 $ROOTFS_DIR/usr/local/bin/proot
         sleep 1
     done
     chmod 755 $ROOTFS_DIR/usr/local/bin/proot
-
+    printf "${G}✓ Escalation Complete."
+    sleep 2
+    
     ## Adding Domain Nameservers to resolv.conf
+      printf "${Y}! Setting up DNS Servers on ${RST}/etc/resolv.conf"  
       printf "nameserver 1.1.1.1\nnameserver 1.0.0.1" > ${ROOTFS_DIR}/etc/resolv.conf
-      rm -rf /tmp/rootfs.tar.xz /tmp/sbin
+      printf "${G}✓ DNS Setup Complete."
+
+      ### Removing Temporary files
+      printf "${G}! Cleaning Up Caches ...${RST}"
+      rm -rf "/tmp/${distro}-rootfs.tar.gz" /tmp/sbin
+      
       ### Adding file to check if distro is installed
       touch $ROOTFS_DIR/.installed
+      printf "${BG}✓ Installation completed successfully!${RST}"
+      printf "Proceeding in 5 seconds..."
+      sleep 5
+      
       fi
     
 }
 
 
-
 # ////// Distro: Boot //////
 function distro_boot() {
 
-    $ROOTFS_DIR/usr/local/bin/proot --rootfs="${ROOTFS_DIR}" -0 -w "/root" -b /dev -b /sys -b /proc -b /etc/resolv.conf --kill-on-exit
+    $ROOTFS_DIR/usr/local/bin/proot --rootfs="${ROOTFS_DIR}" -0 -w "/home" -b /dev -b /sys -b /proc -b /etc/resolv.conf --kill-on-exit
 
 }
 
