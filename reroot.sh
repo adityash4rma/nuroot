@@ -145,10 +145,12 @@ ${BY}! Please select the Linux Distro:${RST}
     sleep 1
 
     ### Hiding uncessary audit warning
+    chmod +x home/.bashrc
     echo "alias sudo='sudo 2>/dev/null'" >> home/.bashrc && echo "alias sudo='sudo 2>/dev/null'" >> root/.bashrc
 
     ### Supress lesspipe
-    sed -i '/lesspipe/ s|.*|[ -x /usr/bin/lesspipe ] \&\& eval "$(SHELL=/bin/sh lesspipe)"|' home/.bashrc && sed -i '/lesspipe/ s|.*|[ -x /usr/bin/lesspipe ] \&\& eval "$(SHELL=/bin/sh lesspipe)"|' root/.bashrc
+    sed -i '/lesspipe/d' home/.bashrc && sed -i '/lesspipe/d' root/.bashrc
+
 
     
     ### Adding file to check if distro is installed
