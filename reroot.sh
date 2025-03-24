@@ -25,18 +25,19 @@ BW='\e[1;37m'  # Bold White
 # Reset
 RST='\e[0m'
 
+### config
+ROOTFS_DIR=$(pwd)
+export PATH=$PATH:~/.local/usr/bin
+max_retries=50
+timeout=1
+ARCH=$(uname -m)
+###
 
 
 ## ///// Function to start installation /////
 function distro_install() {
 
-    ### config
-    ROOTFS_DIR=$(pwd)
-    export PATH=$PATH:~/.local/usr/bin
-    max_retries=50
-    timeout=1
-    ARCH=$(uname -m)
-    ###
+
     
     clear
     ### banner
@@ -50,7 +51,7 @@ function distro_install() {
        /_/ |_/_____(_)_/ |_|\____/\____/ /_/
                                     ~ v1.0s
                 ${BG}>> by adityash4rma <<${RST}
-    ================================================
+================================================
     
     "
     }
@@ -75,7 +76,7 @@ ${BY}! Please select the Linux Distro:${RST}
 1. Ubuntu
 2. Alpine
 "
-    printf "${BG}> Enter the Distro you want to install: ${RST}\n"
+    printf "${BG}> Enter the Distro you want to install: ${RST}"
     read which_distro
     
     
@@ -103,13 +104,13 @@ ${BY}! Please select the Linux Distro:${RST}
     ## Binary installation
     mkdir $ROOTFS_DIR/usr/local/bin -p
     printf "${Y}! Downloading Binary: ${RST}proot ...${RST}\n";
-    wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
+    wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/adityash4rma/reroot/raw/refs/heads/main/binaries/proot-${ARCH}"
 
     ## Downlaod proot binary and check integrity
     while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
         rm $ROOTFS_DIR/usr/local/bin/proot -rf
         printf "${Y}! [RETRY] Downloading Binary: ${RST}proot ...${RST}\n";
-        wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
+        wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/adityash4rma/reroot/raw/refs/heads/main/binaries/proot-${ARCH}"
 
         if [ -s "$ROOTFS_DIR/usr/local/bin/proot" ]; then
             printf "${Y}! Escalating Privileges for${RST} proot ${Y}...${RST}\n"
@@ -132,7 +133,24 @@ ${BY}! Please select the Linux Distro:${RST}
     ### Removing Temporary files
     printf "${G}! Cleaning Up Caches ...${RST}\n"
     rm -rf "/tmp/${distro}-rootfs.tar.gz" /tmp/sbin
-      
+
+    ### Replicating usergroup
+    cp /etc/group etc/
+    #printf "${G}✓ Replicated usergroups from this machine.${RST}\n"
+    sleep 1
+
+    ### Adding .bashrc and .profile
+    cp -a etc/skel/. home/ && cp -a etc/skel/. root/
+    printf "${Y}! Setting up .bashrc and .profile${RST}\n"
+    sleep 1
+
+    ### Hiding uncessary audit warning
+    echo "alias sudo='sudo 2>/dev/null'" >> home/.bashrc && echo "alias sudo='sudo 2>/dev/null'" >> root/.bashrc
+
+    ### Supress lesspipe
+    sed -i '/lesspipe/ s|.*|[ -x /usr/bin/lesspipe ] \&\& eval "$(SHELL=/bin/sh lesspipe)"|' home/.bashrc && sed -i '/lesspipe/ s|.*|[ -x /usr/bin/lesspipe ] \&\& eval "$(SHELL=/bin/sh lesspipe)"|' root/.bashrc
+
+    
     ### Adding file to check if distro is installed
     touch $ROOTFS_DIR/.installed
     printf "${BG}✓ Installation completed successfully!${RST}\n"
@@ -146,17 +164,13 @@ ${BY}! Please select the Linux Distro:${RST}
 
 # ////// Distro: Boot //////
 function distro_boot() {
-
-    $ROOTFS_DIR/usr/local/bin/proot --rootfs="${ROOTFS_DIR}" -0 -w "/home" -b /dev -b /sys -b /proc -b /etc/resolv.conf --kill-on-exit
-
+    usr/local/bin/proot --rootfs="${ROOTFS_DIR}" -0 -w "/home" -b /dev -b /sys -b /proc -b /etc/resolv.conf --kill-on-exit su
 }
 
 
 ### When to Boot & When to install
 if [ ! -e $ROOTFS_DIR/.installed ]; then
     distro_install
-else
-    boot
+elif [ -e $ROOTFS_DIR/.installed ]; then
+    distro_boot
 fi
-
-
