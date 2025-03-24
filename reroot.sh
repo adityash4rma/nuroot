@@ -56,6 +56,7 @@ banner
 printf "${Y}Checking CPU Architecture ... ${RST}\n"
 if [ "$ARCH" = "x86_64" ]; then
     ARCH_ALT=amd64
+    
     printf "Architecture: ${BG} ${ARCH_ALT} ${RST}\n"
 elif [ "$ARCH" = "aarch64" ]; then
     ARCH_ALT=arm64
@@ -67,15 +68,25 @@ fi
 
 echo -e "
 ${BY}! Please select the Linux Distro:${RST}
-1. Linux
-2. Debian
+1. Ubuntu
+2. Alpine
 "
 printf "${BG}> Enter the Distro you want to install: ${RST}"
 read which_distro
 
 
+case $which_distro in
+    1) 
+        printf "${BY}! Downloading Ubuntu (24.04.2) ...${RST}";
+        wget --show-progress --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O /tmp/rootfs.tar.gz "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04.1/release/ubuntu-base-24.04.2-base-${ARCH_ALT}.tar.gz"
+        printf "${BY}! Unpacking Distro ...${RST}"
+        tar -xf /tmp/rootfs.tar.gz -C $ROOTFS_DIR
 
-
+    2)
+        printf "${BY}! Downloading Alpine Linux...${RST}";
+        wget --show-progress  --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O /tmp/rootfs.tar.gz "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.3-${ARCH_ALT}.tar.gz"
+        printf "${BY}! Unpacking Distro ...${RST}"
+        tar -xf /tmp/rootfs.tar.gz -C $ROOTFS_DIR
 
 
 
