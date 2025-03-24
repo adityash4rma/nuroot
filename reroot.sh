@@ -66,53 +66,53 @@ function distro_install() {
         ARCH_ALT=arm64
         printf "Architecture: ${BG} ${ARCH_ALT} ${RST}\n"
     else
-      printf "${BR}! Unsupported CPU architecture: ${ARCH}${RST}"
+      printf "${BR}! Unsupported CPU architecture: ${ARCH}${RST}\n"
       exit 1
     fi
     
-    echo -e "
-    ${BY}! Please select the Linux Distro:${RST}
-    1. Ubuntu
-    2. Alpine
-    "
-    printf "${BG}> Enter the Distro you want to install: ${RST}"
+echo -e "
+${BY}! Please select the Linux Distro:${RST}
+1. Ubuntu
+2. Alpine
+"
+    printf "${BG}> Enter the Distro you want to install: ${RST}\n"
     read which_distro
     
     
     case $which_distro in
         1) 
             distro="ubuntu"
-            printf "${Y}! Downloading Ubuntu (24.04.2) ...${RST}";
+            printf "${Y}! Downloading Ubuntu (24.04.2) ...${RST}\n";
             wget --show-progress --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04.1/release/ubuntu-base-24.04.2-base-${ARCH_ALT}.tar.gz"
-            printf "${G}✓ Downloading Completed${RST}"
-            printf "${Y}! Unpacking Distro ...${RST}"
+            printf "${G}✓ Downloading Completed${RST}\n"
+            printf "${Y}! Unpacking Distro ...${RST}\n"
             tar -xf "/tmp/${distro}-rootfs.tar.gz" -C $ROOTFS_DIR
-            printf "${BG}✓ Unpacking Completed${RST}"
+            printf "${BG}✓ Unpacking Completed${RST}\n"
             ;;
         2)
             distro="alpine"
-            printf "${Y}! Downloading Alpine Linux...${RST}";
+            printf "${Y}! Downloading Alpine Linux...${RST}\n";
             wget --show-progress  --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
-            printf "${G}✓ Downloading Completed${RST}"
-            printf "${Y}! Unpacking Distro ...${RST}"
+            printf "${G}✓ Downloading Completed${RST}\n"
+            printf "${Y}! Unpacking Distro ...${RST}\n"
             tar -xf "/tmp/${distro}-rootfs.tar.gz" -C $ROOTFS_DIR
-            printf "${G}✓ Unpacking Completed${RST}"
+            printf "${G}✓ Unpacking Completed${RST}\n"
             ;;
     esac
     
     ## Binary installation
     mkdir $ROOTFS_DIR/usr/local/bin -p
-    printf "${Y}! Downloading Binary: ${RST}proot ...${RST}";
+    printf "${Y}! Downloading Binary: ${RST}proot ...${RST}\n";
     wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
 
     ## Downlaod proot binary and check integrity
     while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
         rm $ROOTFS_DIR/usr/local/bin/proot -rf
-        printf "${Y}! [RETRY] Downloading Binary: ${RST}proot ...${RST}";
+        printf "${Y}! [RETRY] Downloading Binary: ${RST}proot ...${RST}\n";
         wget --tries=$max_retries --timeout=$timeout --no-hsts -O $ROOTFS_DIR/usr/local/bin/proot "https://github.com/proot-me/proot-static-build/raw/refs/heads/master/static/proot-${ARCH}"
 
         if [ -s "$ROOTFS_DIR/usr/local/bin/proot" ]; then
-            printf "${Y}! Escalating Privileges for${RST} proot ${Y}...${RST}"
+            printf "${Y}! Escalating Privileges for${RST} proot ${Y}...${RST}\n"
             chmod 755 $ROOTFS_DIR/usr/local/bin/proot
             break
         fi
@@ -121,25 +121,25 @@ function distro_install() {
         sleep 1
     done
     chmod 755 $ROOTFS_DIR/usr/local/bin/proot
-    printf "${G}✓ Escalation Complete."
+    printf "${G}✓ Escalation Complete.\n"
     sleep 2
     
     ## Adding Domain Nameservers to resolv.conf
-      printf "${Y}! Setting up DNS Servers on ${RST}/etc/resolv.conf"  
-      printf "nameserver 1.1.1.1\nnameserver 1.0.0.1" > ${ROOTFS_DIR}/etc/resolv.conf
-      printf "${G}✓ DNS Setup Complete."
+    printf "${Y}! Setting up DNS Servers on ${RST}/etc/resolv.conf\n"  
+    printf "nameserver 1.1.1.1\nnameserver 1.0.0.1" > ${ROOTFS_DIR}/etc/resolv.conf
+    printf "${G}✓ DNS Setup Complete.\n"
 
-      ### Removing Temporary files
-      printf "${G}! Cleaning Up Caches ...${RST}"
-      rm -rf "/tmp/${distro}-rootfs.tar.gz" /tmp/sbin
+    ### Removing Temporary files
+    printf "${G}! Cleaning Up Caches ...${RST}\n"
+    rm -rf "/tmp/${distro}-rootfs.tar.gz" /tmp/sbin
       
-      ### Adding file to check if distro is installed
-      touch $ROOTFS_DIR/.installed
-      printf "${BG}✓ Installation completed successfully!${RST}"
-      printf "Proceeding in 5 seconds..."
-      sleep 5
+    ### Adding file to check if distro is installed
+    touch $ROOTFS_DIR/.installed
+    printf "${BG}✓ Installation completed successfully!${RST}\n"
+    printf "Proceeding in 5 seconds..."
+    sleep 5
       
-      fi
+      
     
 }
 
