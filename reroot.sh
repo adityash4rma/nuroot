@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 ### config
 
@@ -43,16 +43,22 @@ function distro_install() {
     ### banner
     banner() {
     
-    echo -e "================================================
-        ____  ______  ____  ____  ____  ______
-       / __ \/ ____/ / __ \/ __ \/ __ \/_  __/
-      / /_/ / __/ (_) /_/ / / / / / / / / /   
-     / _, _/ /____ / _, _/ /_/ / /_/ / / /    
-    /_/ |_/_____(_)_/ |_|\____/\____/ /_/
-                                 ~ v1.0s
-             ${BG}>> by adityash4rma <<${RST}
-================================================
-    
+    echo -e "                                                        
+ ┌────────────────────────────────────────────────────┐ 
+ │                                                    │ 
+ │                                                    │ 
+ │         ____  ______  ____  ____  ____  ______     │ 
+ │        / __ \/ ____/ / __ \/ __ \/ __ \/_  __/     │ 
+ │       / /_/ / __/ (_) /_/ / / / / / / / / /        │ 
+ │      / _, _/ /____ / _, _/ /_/ / /_/ / / /         │ 
+ │     /_/ |_/_____(_)_/ |_|\____/\____/ /_/          │ 
+ │                                  ~ v1.1s           │ 
+ │                                                    │ 
+ │                ${BG}>> by adityash4rma <<${RST}               │ 
+ │                                                    │ 
+ │                                                    │ 
+ └────────────────────────────────────────────────────┘ 
+                                                        
     "
     }
     
@@ -93,7 +99,8 @@ ${BY}! Please select the Linux Distro:${RST}
         2)
             distro="alpine"
             printf "${Y}! Downloading Alpine Linux...${RST}\n";
-            wget --show-progress  --progress=bar -q --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
+            printf "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/${ARCH}/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
+            wget --show-progress  --progress=bar --tries=$max_retries --timeout=$timeout --no-hsts -O "/tmp/${distro}-rootfs.tar.gz" "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/${ARCH}/alpine-minirootfs-3.21.3-${ARCH}.tar.gz"
             printf "${G}✓ Downloading Completed${RST}\n"
             printf "${Y}! Unpacking Distro ...${RST}\n"
             tar -xf "/tmp/${distro}-rootfs.tar.gz" -C $ROOTFS_DIR
