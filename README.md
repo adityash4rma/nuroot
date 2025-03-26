@@ -14,7 +14,7 @@ _Run apps that require sudo privilege, on *Unprivileged* &amp; *Ephemeral* Linux
 Nuroot leverages [Proot](https://proot-me.github.io/) to simulate root privileges, enabling applications that require `sudo` to run without actual root access. It supports multiple Linux distributions and architectures (x86_64, AArch64 for now).
 
 ## Installation
-1. Downloading Locally
+1. Downloading 
    ```bash
    wget https://github.com/adityash4rma/nuroot/raw/refs/heads/main/nuroot.sh
    chmod +x nuroot.sh
