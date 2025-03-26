@@ -162,6 +162,7 @@ ${BY}! Please select the Linux Distro:${RST}
     ### Adding file to check if distro is installed
     touch $ROOTFS_DIR/.installed
     printf "${BG}✓ Installation completed successfully!${RST}\n"
+    printf "${BG} RUN THE SCRIPT AGAIN TO LOGIN TO THE DISTRO${RST}"
     printf "Proceeding in 5 seconds...\n"
     sleep 5
       
