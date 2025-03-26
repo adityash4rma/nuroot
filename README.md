@@ -4,7 +4,7 @@
   /  |/ / / / / /_/ / / / / / / / / /   
  / /|  / /_/ / _, _/ /_/ / /_/ / / /    
 /_/ |_/\____/_/ |_|\____/\____/ /_/               
-                            ~ v1.0s
+                            ~ v1.1s
 ```
 _Run apps that require sudo privilege, on *Unprivileged* &amp; *Ephemeral* Linux Environments_
 
